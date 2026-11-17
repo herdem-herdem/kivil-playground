@@ -22,8 +22,10 @@ function toast(message) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 5000);
 }
 function status(label, state = 'idle') {
-  $('status').replaceChildren(document.createElement('span'), document.createTextNode(label));
-  $('status').dataset.state = state;
+  const pane = document.querySelector('.output-pane');
+  pane.dataset.state = state;
+  pane.setAttribute('aria-label', `Program çıktısı: ${label}`);
+  pane.setAttribute('aria-busy', String(state === 'running'));
 }
 function highlight() {
   const code = editor.value;
@@ -82,7 +84,7 @@ function stop(label = 'Durduruldu') {
 function resetOutput() {
   $('empty-output').hidden = false; $('output').hidden = true; $('output').textContent = '';
   $('error').hidden = true; $('error').textContent = ''; $('goto-error').hidden = true;
-  $('duration').textContent = '—'; errorLine = null;
+  errorLine = null;
 }
 function openDocument(document) {
   const url = documentUrl(location.href, document);
@@ -138,7 +140,6 @@ async function run(replay = false) {
   runButton.disabled = true;
   stopButton.disabled = false;
   status('Çalışıyor', 'running');
-  $('duration').textContent = '…';
   try {
     const module = await modulePromise;
     worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
@@ -148,7 +149,6 @@ async function run(replay = false) {
       if (worker !== activeWorker) return;
       finish();
       $('output').textContent = data.output || '';
-      $('duration').textContent = typeof data.elapsed === 'number' ? `${data.elapsed < 1 ? '<1' : data.elapsed.toFixed(0)} ms` : '—';
       if (data.needsInput) {
         waiting = true;
         status('Girdi bekleniyor', 'input');
@@ -170,7 +170,6 @@ async function run(replay = false) {
     timer = setTimeout(() => {
       if (worker !== activeWorker) return;
       finish(); status('Süre sınırı', 'error');
-      $('duration').textContent = '5 sn';
       $('error').hidden = false;
       $('error').textContent = 'Program 5 saniyeyi aştığı için durduruldu. Döngü koşullarını kontrol et.';
     }, 5000);

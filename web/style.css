@@ -1,9 +1,38 @@
+/* Switzer webfonts, hosted by Fontshare. Source: https://www.fontshare.com/fonts/switzer */
+@font-face {
+  font-family: "Switzer";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://cdn.fontshare.com/wf/BLNB4FAQFNK56DWWNF7PMGTCOTZHOEII/ST3WKSSDMBK2MIQQO3MAVYWLF4FTOLFV/6IN5WOLRCYP4G4MOCOHOMXNON6Q7MDAR.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Switzer";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("https://cdn.fontshare.com/wf/OYB4CXKJQXKTNSLJMTDQOIVUL2V5EL7S/WYO2P7DQVV5RNXGMCUO2HL4RJP4VFUAS/6XPIMU23OJVRY676OG5YVJMWEHWICATX.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Switzer";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("https://cdn.fontshare.com/wf/5SZVFDB7V52TI6ULVC6J3WQZQCIZVDV5/ODYPSTCUDMKSTYIPTV4CLQ7URIK7XYBJ/YS3VPNVO4B3TOJMEXDGFZQ4TLZGGSRZC.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Switzer";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("https://cdn.fontshare.com/wf/HBNTRIISA5MEXGL5WPYI7CV2HIWTDV3Q/YDPDINVT673XLXNSTMLG4JNCZZMVVNPN/Y7SCNZJOT2MW5ADSGOFLDGH4TNL4JCQY.woff2") format("woff2");
+}
 :root {
   color-scheme: light;
   --ink: #252b35;
   --line: #dfe3e8;
   --mono: Consolas, "Liberation Mono", Menlo, monospace;
-  --sans: Arial, Helvetica, sans-serif;
+  --sans: "Switzer", Arial, Helvetica, sans-serif;
   --output-width: 36%;
   --code-line-height: 25px;
 }
@@ -41,7 +70,7 @@ summary::-webkit-details-marker { display: none; }
 .panes { display: grid; grid-template-columns: minmax(0,1fr) 4px minmax(260px,var(--output-width)); flex: 1; min-height: 0; }
 .code-pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: white; }
 .code-header, .pane-header { height: 39px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: #f6f7f9; border-bottom: 1px solid var(--line); }
-.code-header { color: #4e5e73; font: 12px var(--mono); }
+.code-header { color: #4e5e73; font: 12px var(--sans); }
 .editor-shell { position: relative; display: flex; flex: 1; min-height: 0; }
 .line-number-clip { width: 52px; flex: none; overflow: hidden; user-select: none; }
 .line-number-clip > div { padding: 20px 14px 20px 0; white-space: pre; text-align: right; font: 12px/var(--code-line-height) var(--mono); color: #adb5bf; }
@@ -57,7 +86,7 @@ summary::-webkit-details-marker { display: none; }
 #highlight .number { color: #a45827; }
 #highlight .comment { color: #8d969e; }
 #highlight .operator { color: #67758b; }
-.editor-footer { height: 25px; flex: none; display: flex; align-items: center; justify-content: flex-end; gap: 18px; padding: 0 15px; color: #98a3b1; font: 9px var(--mono); border-top: 1px solid #f0f2f5; }
+.editor-footer { height: 25px; flex: none; display: flex; align-items: center; justify-content: flex-end; gap: 18px; padding: 0 15px; color: #98a3b1; font: 9px var(--sans); border-top: 1px solid #f0f2f5; }
 .resize-handle { position: relative; background: #eef1f5; border-left: 1px solid #dfe4eb; border-right: 1px solid #e5e9ef; cursor: col-resize; touch-action: none; user-select: none; z-index: 2; }
 .resize-handle:hover, .resize-handle:focus-visible { background: #8eacd2; outline: none; }
 .output-pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: #fff; }
@@ -70,12 +99,6 @@ summary::-webkit-details-marker { display: none; }
 #output { margin: 0; padding: 20px; color: #273444; font: 13px/24px var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
 #error { margin: 0 16px 12px; padding: 12px; color: #a33d3d; background: #fff4f4; border: 1px solid #f0cece; font: 11px/1.7 var(--mono); white-space: pre-wrap; }
 #goto-error { display: block; margin: 0 16px 15px; color: #a75b52; font-size: 11px; text-align: left; }
-.output-footer { height: 25px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; color: #929faf; font: 9px var(--mono); border-top: 1px solid #edf0f4; }
-#status { display: flex; align-items: center; gap: 6px; }
-#status > span { height: 4px; width: 4px; border-radius: 50%; background: #79a388; }
-#status[data-state=error] { color: #bd7770; }
-#status[data-state=error] > span { background: #bd7770; }
-#status[data-state=running] > span { background: #b69b6b; animation: pulse 1s infinite; }
 #input-form { padding: 13px 16px; border-top: 1px solid #e0e7f0; background: #f4f7fb; }
 #input-form label { display: block; margin-bottom: 8px; color: #8492a4; font-size: 9px; }
 #input-form > div { display: flex; gap: 7px; }
@@ -86,7 +109,6 @@ summary::-webkit-details-marker { display: none; }
 #pending-tabs { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
 #pending-tabs a { color: #2867c6; text-decoration: underline; }
 [hidden] { display: none !important; }
-@keyframes pulse { 50% { opacity: .35; } }
 @media (max-width: 900px) {
   .app-header { padding: 0 15px; gap: 20px; }
   .github-link, .shortcut { display: none; }

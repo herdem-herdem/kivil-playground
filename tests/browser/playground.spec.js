@@ -9,7 +9,7 @@ async function openExample(page, name) {
   return child;
 }
 
-test.beforeEach(async ({ page }) => { await page.goto('./'); await expect(page.locator('#run')).toBeEnabled(); });
+test.beforeEach(async ({ page }) => { await page.goto('./', { waitUntil: 'domcontentloaded' }); await expect(page.locator('#run')).toBeEnabled(); });
 
 test('runs source and reports located errors', async ({ page }) => {
   await page.locator('#run').click();
@@ -52,7 +52,7 @@ test('new browser tabs save independently across reloads', async ({ page }) => {
   await expect(child.locator('#run')).toBeEnabled();
   await expect(child.locator('#editor')).toHaveValue('');
   await child.locator('#editor').fill('yaz("diğer dosya")');
-  await page.reload(); await child.reload();
+  await page.reload({ waitUntil: 'domcontentloaded' }); await child.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('#editor')).toHaveValue('yaz("ana dosya")');
   await expect(child.locator('#editor')).toHaveValue('yaz("diğer dosya")');
   expect(new URL(page.url()).hash).not.toBe(new URL(child.url()).hash);
@@ -115,7 +115,7 @@ test('automatically terminates infinite loops', async ({ page }) => {
 
 test('run and save keyboard shortcuts work', async ({ page }) => {
   await page.locator('#editor').fill('yaz("Taslak")');
-  await page.reload();
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('#run')).toBeEnabled();
   await page.keyboard.press('Control+Enter');
   await expect(page.locator('#output')).toHaveText('Taslak\n');
@@ -142,7 +142,7 @@ test('previous drafts migrate without deleting their backup', async ({ page }) =
     localStorage.setItem('kivil-playground-draft-v1', JSON.stringify({ filename: 'taslak.kivil', code: 'yaz("Korundu")' }));
     history.replaceState(null, '', location.pathname + location.search);
   });
-  await page.reload();
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('#filename')).toHaveText('taslak.kivil');
   await expect(page.locator('#editor')).toHaveValue('yaz("Korundu")');
   expect(await page.evaluate(() => localStorage.getItem('kivil-playground-draft-v1'))).not.toBeNull();
@@ -159,7 +159,7 @@ test('error navigation and panel resizing still work', async ({ page }) => {
 });
 
 test('keeps removed UI out of the page', async ({ page }) => {
-  await expect(page.locator('.sidebar, #guide, #rename-file, #file-dialog, .breadcrumb, .app-statusbar, #file-count, #file-tabs, .tabs-bar')).toHaveCount(0);
+  await expect(page.locator('.sidebar, #guide, #rename-file, #file-dialog, .breadcrumb, .app-statusbar, #file-count, #file-tabs, .tabs-bar, .output-footer, #status, #duration')).toHaveCount(0);
   const menu = await page.locator('.app-header nav').innerText();
   expect(menu.indexOf('Örnekler')).toBeLessThan(menu.indexOf('Kaydet'));
   expect(menu.indexOf('Kaydet')).toBeLessThan(menu.indexOf('Yükle'));
