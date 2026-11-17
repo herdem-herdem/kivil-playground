@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f7f3">
+  <meta name="description" content="Kıvıl ile Türkçe kod yaz, tarayıcında çalıştır ve sonuçları anında gör. Kurulum gerektirmeyen programlama alanı.">
+  <title>Kıvıl — Kodun ilk kıvılcımı</title>
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="site-header wrap">
+    <a class="brand" href="./" aria-label="Kıvıl ana sayfa"><svg viewBox="0 0 32 38" aria-hidden="true"><path d="M18 1c2 10-7 11-5 20 3-2 5-5 5-8 8 6 12 12 9 18-3 7-14 8-20 2C-1 25 5 15 10 11c-1 6 0 8 2 9C9 12 17 10 18 1Z" fill="currentColor"/></svg><span>kıvıl<span class="brand-dot">.</span></span><span class="brand-label">PLAYGROUND</span></a>
+    <nav aria-label="Ana gezinme"><button class="text-button" id="guide-open">Dil rehberi <span aria-hidden="true">↗</span></button><a href="https://github.com/herdem-herdem/kivil-playground" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main class="wrap">
+    <section class="intro" aria-labelledby="title">
+      <div><div class="eyebrow"><span class="tiny-flame">✳</span> TÜRKÇE DÜŞÜN. KODLA.</div><h1 id="title">Bir fikir yaz.<br><span>Çalıştığını gör.</span></h1></div>
+      <div class="intro-note"><p>İlk “merhaba”dan kendi fonksiyonlarına.<br>Kıvıl ile programlamayı kendi dilinde keşfet.</p><div class="local-badge"><span></span> Kurulum yok. Her şey tarayıcında.</div></div>
+    </section>
+    <section class="playground" aria-label="Kıvıl kod çalışma alanı">
+      <div class="workspace-toolbar">
+        <div class="examples" aria-label="Hazır örnekler"><span class="toolbar-label">BAŞLANGIÇ</span><button class="example active" data-example="hello">Merhaba dünya</button><button class="example" data-example="conditions">Koşullar</button><button class="example" data-example="lists">Listeler</button><button class="example" data-example="functions">Fonksiyonlar</button><button class="example" data-example="input">Girdi</button></div>
+        <button class="icon-button" id="reset" title="Seçili örneği sıfırla" aria-label="Seçili örneği sıfırla">↺</button>
+      </div>
+      <div class="panes">
+        <section class="code-pane" aria-label="Kod editörü">
+          <div class="pane-header"><span class="file-title"><span class="file-icon">K</span> <span id="filename">merhaba.kivil</span><span class="saved-dot" title="Tarayıcıda saklanır"></span></span><div class="file-actions"><button class="quiet-button" id="open-file">Dosya aç</button><button class="quiet-button" id="download">İndir <span aria-hidden="true">↓</span></button><input type="file" id="file-input" accept=".kivil,.txt" hidden></div></div>
+          <div class="editor-shell" id="editor-shell"><div class="line-number-clip" aria-hidden="true"><div id="line-numbers">1</div></div><div class="code-area"><pre id="highlight" aria-hidden="true"><code></code></pre><textarea id="editor" aria-label="Kıvıl kod editörü" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea></div></div>
+          <div class="editor-footer"><span><span class="small-dot"></span> <span id="save-status">Yerel taslak</span></span><span id="cursor-position">Satır 1, Sütun 1</span><span>UTF-8</span></div>
+        </section>
+        <section class="output-pane" aria-label="Program çıktısı">
+          <div class="pane-header output-header"><span><span class="terminal-icon" aria-hidden="true">›_</span> Çıktı</span><button id="copy-output" class="copy-button" aria-label="Çıktıyı kopyala" title="Çıktıyı kopyala">Kopyala</button></div>
+          <div class="output-body" id="output-body"><div class="empty-output" id="empty-output"><div class="empty-symbol" aria-hidden="true">›_</div><p>İlk kıvılcım senden.</p><span>Kodunu yaz, çalıştır ve burada gör.</span></div><pre id="output" aria-live="polite" aria-atomic="true" tabindex="0" hidden></pre><div id="error" role="alert" hidden></div></div>
+          <form id="input-form" hidden><label for="runtime-input">PROGRAM SENDEN BİR GİRDİ BEKLİYOR</label><div><input id="runtime-input" autocomplete="off" placeholder="Yanıtını yaz…" maxlength="8000"><button type="submit" aria-label="Girdiyi gönder">Gönder ↵</button></div></form>
+          <div class="output-footer"><span id="status" data-state="idle"><span></span> Hazırlanıyor</span><span id="duration">—</span></div>
+        </section>
+      </div>
+      <div class="run-toolbar"><div class="shortcut"><kbd id="shortcut-key">⌘</kbd><kbd>↵</kbd><span>ile çalıştır</span></div><div class="run-actions"><button id="stop" class="stop-button" disabled><span aria-hidden="true">■</span> Durdur</button><button id="run" class="run-button" disabled><span aria-hidden="true">▶</span> Çalıştır</button></div></div>
+    </section>
+    <section class="quick-guide" aria-label="Hızlı başlangıç"><div class="guide-intro"><span class="eyebrow">KÜÇÜK BİR HATIRLATMA</span><h2>Biraz Türkçe. <br>Biraz mantık. Çokça olasılık.</h2></div><button class="syntax-card" data-guide="print"><span class="syntax-label">01 / EKRANA YAZDIR</span><code><b>yaz</b>(<i>"Merhaba dünya!"</i>)</code><span>Bir fikri görünür kıl.</span></button><button class="syntax-card" data-guide="condition"><span class="syntax-label">02 / BİR KARAR VER</span><code><b>eger</b> (puan &gt;= <em>50</em>) { … }</code><span>Koşullara göre yolunu seç.</span></button><button class="syntax-card" data-guide="function"><span class="syntax-label">03 / KENDİN TANIMLA</span><code><b>islev</b> topla(a, b) { … }</code><span>Tekrarlanan fikirlere bir isim ver.</span></button></section>
+  </main>
+  <footer class="site-footer wrap"><span>Bir kıvılcım yeter.</span><span>Kıvıl <span aria-hidden="true">·</span> Türkçe programlama dili <span class="version">v0.1</span></span><a href="https://github.com/herdem-herdem/kivil-playground" target="_blank" rel="noreferrer">Birlikte geliştirelim ↗</a></footer>
+  <dialog id="guide"><div class="dialog-header"><span class="eyebrow">KIVIL / KISA REHBER</span><button id="guide-close" class="icon-button" aria-label="Rehberi kapat">×</button></div><h2>Başlamak için gerekenler.</h2><p>Her komut ayrı satırda. Bloklar <code>{ }</code> ile, koşullar <code>( )</code> ile yazılır.</p><dl><dt>Yazdırma & değerler</dt><dd><code>isim = "Ada"<br>puan = 10 + 20 * 3<br>yaz("Merhaba", isim, puan)</code></dd><dt>Koşullar & mantık</dt><dd><code>eger (puan &gt;= 50 ve dogru) {<br>    yaz("Geçtin")<br>} degilse {<br>    yaz("Tekrar dene")<br>}</code></dd><dt>Döngüler</dt><dd><code>tekrarla 3 { yaz("Merhaba") }<br>iken sayac &lt; 5 {<br>    sayac = sayac + 1<br>}</code></dd><dt>Fonksiyonlar</dt><dd><code>islev topla(a, b) {<br>    dondur a + b<br>}<br>yaz(topla(3, 4))</code></dd><dt>Listeler</dt><dd><code>sayilar = [10, 20, 30]<br>sayilar[0] = 5<br>sayilar.ekle(40)<br>yaz(sayilar.uzunluk())</code></dd><dt>Girdi & dönüşümler</dt><dd><code>isim = girdi("Adın: ")<br>yas = sayi(girdi("Yaşın: "))<br>yaz(isim, metin(yas + 1))</code></dd></dl><p class="guide-footnote">Çalıştırma 5 saniye ile sınırlıdır. Çıktı en fazla 128 KB olabilir. Girdi beklerken yeni yanıtlarla program baştan yürütülür; kodun ve girdilerin sunucuya gönderilmez.</p></dialog>
+  <div id="toast" role="status" hidden></div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

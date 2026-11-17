@@ -1,0 +1,10 @@
+{
+  "repository": "https://github.com/herdem-herdem/kivil",
+  "commit": "0c6805091d08aa315c9dbf3defb96a6374c41efe",
+  "sha256": {
+    "diagnostic.rs": "a7f5fd6281a53d10ea8e4652548c9701bbadb8bc51e860de33c7856f631358cd",
+    "lexer.rs": "fca96474950b676d92917cc085dbf5410f45e317083b6f7944e5baac68018c77",
+    "parser.rs": "5cf671eb6dce60c2d1b0fa038ca5ab09f5ea620722e2c33027742c47f0b1786f",
+    "interpreter.rs": "e0243ce9b948f4b28f80752edbc97705e0038bb75d6c09699c72445b0889a773"
+  }
+}
