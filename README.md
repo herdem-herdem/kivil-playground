@@ -1,12 +1,14 @@
-# Kıvıl Playground
+# Kıvıl Web IDE
 
-Kıvıl programlarını tarayıcıda yazıp çalıştırmak için bağımsız web uygulaması.
+Kıvıl programlarını tarayıcıda yazıp çalıştırmak için tam ekran kod çalışma ortamı.
 
 **Site:** https://herdem-herdem.github.io/kivil-playground/
 
 Dil motorunun ana deposu: [herdem-herdem/kivil](https://github.com/herdem-herdem/kivil).
 Bu repo editörü, Web Worker'ı, WASM adaptörünü ve GitHub Pages yayınını içerir.
 Ana dil reposuna web bağımlılıkları eklenmez.
+
+Her dosya bağımsız bir program olarak çalıştırılır; dosyalar arası import/modül desteği yoktur.
 
 ## Yerel geliştirme
 
@@ -22,9 +24,12 @@ npm run dev
 
 ## Özellikler
 
-- Türkçe sözdizimi renklendirmeli kod editörü ve satır numaraları.
+- Dosya gezgini, dosya sekmeleri ve geniş, sözdizimi renklendirmeli kod editörü.
+- Dosya oluşturma, yeniden adlandırma, silme, çoklu dosya açma ve aktif dosyayı indirme.
+- Otomatik girinti, Tab/Shift+Tab, yeniden boyutlandırılabilen çıktı paneli ve hatalı satıra gitme.
 - Rust yorumlayıcısının gerçek WASM sürümü; JavaScript ile yeniden yazılmış bir dil motoru değildir.
-- Merhaba dünya, koşullar, listeler, fonksiyonlar ve girdi örnekleri.
+- Menüden yeni dosyada açılan merhaba dünya, koşullar, listeler, fonksiyonlar ve girdi örnekleri.
+- En fazla 30 dosyalık yerel çalışma alanı; önceki arayüzdeki taslakların otomatik aktarımı.
 - Satır/sütun bilgili hatalar, çıktı kopyalama, dosya açma/indirme.
 - Ctrl/⌘ + Enter kısayolu ve tarayıcıda otomatik taslak saklama.
 - Ayrı Web Worker'da çalıştırma, durdurma düğmesi ve 5 saniyelik süre sınırı.
@@ -32,7 +37,7 @@ npm run dev
 - Mobil ekranlara uyumlu düzen ve klavyeyle kullanılabilen dil rehberi.
 
 Kod ve girdiler tarayıcıda işlenir; çalıştırma için sunucuya gönderilmez.
-Sayfa ve WASM dosyası normal statik web istekleriyle indirilir. Yerel taslak
+Sayfa ve WASM dosyası normal statik web istekleriyle indirilir. Çalışma alanındaki dosyalar
 aynı tarayıcıda saklanır; ziyaretçiler arasında veya cihazlar arasında paylaşılmaz.
 
 ### Tarayıcıda `girdi()`
