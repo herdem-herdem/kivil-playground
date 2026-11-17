@@ -82,6 +82,6 @@ Kurulu Chrome'u kullanmak için `CHROME_EXECUTABLE` ortam değişkenine tarayıc
 ## Yayın
 
 `main` dalına push, `.github/workflows/pages.yml` iş akışını başlatır.
-İş akışı Rust, WASM ve tarayıcı testlerini çalıştırır; yalnızca `dist/` çıktısını
+İş akışı Playwright ile uyumlu Ubuntu 24.04 üzerinde Rust, WASM ve tarayıcı testlerini çalıştırır; yalnızca `dist/` çıktısını
 GitHub Pages'e yayınlar. Pull request'ler test edilir ama yayın yapmaz.
 GitHub ayarlarında Pages kaynağı **GitHub Actions** olmalıdır.
