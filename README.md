@@ -1,6 +1,6 @@
-# Kıvıl Web IDE
+# Kıvıl Online Editör
 
-Kıvıl programlarını tarayıcıda yazıp çalıştırmak için tam ekran kod çalışma ortamı.
+Kıvıl programlarını yazıp çalıştırmak için sade, açık temalı online editör. Her program gerçek bir tarayıcı sekmesinde açılır.
 
 **Site:** https://herdem-herdem.github.io/kivil-playground/
 
@@ -24,20 +24,21 @@ npm run dev
 
 ## Özellikler
 
-- Her dosya için ayrı sekme ve geniş, sözdizimi renklendirmeli kod editörü.
-- Adsız yeni sekme, sekme kapatma/geri alma, Kaydet ve Yükle ile dosya aktarımı.
-- Otomatik girinti, Tab/Shift+Tab, yeniden boyutlandırılabilen çıktı paneli ve hatalı satıra gitme.
-- Rust yorumlayıcısının gerçek WASM sürümü; JavaScript ile yeniden yazılmış bir dil motoru değildir.
-- Her seçimde yeni sekmede açılan merhaba dünya, koşullar, listeler, fonksiyonlar ve girdi örnekleri.
-- En fazla 30 dosyalık yerel çalışma alanı; önceki arayüzdeki taslakların otomatik aktarımı.
-- Satır/sütun bilgili hatalar, çıktı kopyalama, dosya açma/indirme.
-- Ctrl/⌘ + Enter kısayolu ve tarayıcıda otomatik taslak saklama.
-- Ayrı Web Worker'da çalıştırma, durdurma düğmesi ve 5 saniyelik süre sınırı.
-- 64 KB kaynak kodu, 32 KB girdi, 128 KB çıktı ve 64 MB WASM belleği sınırları.
-- Mobil ekranlara uyumlu, yan panelsiz düzen.
+- Her örnek, yeni program ve yüklenen dosya için bağımsız bir tarayıcı sekmesi.
+- Sekmeler arasında birbirini etkilemeyen ayrı kayıtlar; önceki taslakların korunması.
+- Kaydet/Yükle ile .kivil dosyası indirme ve çoklu dosya açma.
+- Satır numaraları, sözdizimi renklendirmesi, otomatik girinti ve hata konumları.
+- Rust yorumlayıcısının gerçek WASM sürümü; ayrı worker ve durdurma desteği.
+- Ctrl/⌘ + Enter ile çalıştırma, Ctrl/⌘ + S ile dosyayı indirme.
+- 64 KB kaynak, 32 KB girdi, 128 KB çıktı, 64 MB WASM belleği ve 5 saniyelik çalıştırma sınırı.
+
+Yeni tarayıcı sekmelerinin açılması için tarayıcının izin vermesi gerekir.
+Engellenen dosyalar, kullanıcı tarafından tıklanabilecek bağlantılar olarak gösterilir.
+Yeni sekmeye başlangıç kodu URL fragment'iyle aktarılır; fragment sunucuya gönderilmez
+ve sayfa açılınca adresten kaldırılır. Sonraki kayıtlar dosyaya özgü yerel anahtar kullanır.
 
 Kod ve girdiler tarayıcıda işlenir; çalıştırma için sunucuya gönderilmez.
-Sayfa ve WASM dosyası normal statik web istekleriyle indirilir. Çalışma alanındaki dosyalar
+Sayfa ve WASM dosyası normal statik web istekleriyle indirilir. Dosyalar
 aynı tarayıcıda saklanır; ziyaretçiler arasında veya cihazlar arasında paylaşılmaz.
 
 ### Tarayıcıda `girdi()`

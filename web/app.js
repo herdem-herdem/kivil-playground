@@ -1,5 +1,5 @@
 import { examples } from './examples.js';
-import { STORAGE_KEY, createFile, restoreWorkspace, uniqueName } from './workspace.js';
+import { DOCUMENT_PREFIX, LAST_DOCUMENT, createDocument, documentUrl, restoreDocument } from './documents.js';
 const $ = (id) => document.getElementById(id);
 const editor = $('editor');
 const runButton = $('run');
@@ -13,12 +13,10 @@ let answers = [];
 let waiting = false;
 let toastTimer;
 let errorLine = null;
-let lastClosed = null;
 let storageFailureShown = false;
-const positions = new Map();
-function readStorage(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
-const workspace = restoreWorkspace(readStorage(STORAGE_KEY), readStorage('kivil-playground-draft-v1'));
-function activeFile() { return workspace.files.find((file) => file.id === workspace.activeId); }
+function readStorage(key) { try { return localStorage.getItem(key); } catch { return null; } }
+const currentDocument = restoreDocument(location.hash, readStorage, (key, value) => localStorage.setItem(key, value));
+history.replaceState(null, '', new URL(location.pathname + location.search + '#doc=' + currentDocument.id, location.origin));
 function toast(message) {
   $('toast').textContent = message; $('toast').hidden = false;
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 5000);
@@ -69,8 +67,8 @@ function updateActiveLine() {
 }
 window.addEventListener('resize', updateActiveLine);
 function save() {
-  activeFile().code = editor.value;
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(workspace)); storageFailureShown = false; return true; }
+  currentDocument.code = editor.value;
+  try { localStorage.setItem(DOCUMENT_PREFIX + currentDocument.id, JSON.stringify(currentDocument)); localStorage.setItem(LAST_DOCUMENT, currentDocument.id); storageFailureShown = false; return true; }
   catch {
     if (!storageFailureShown) toast('Tarayıcı kaydı kullanılamıyor. Dosyalarını indirerek saklayabilirsin.');
     storageFailureShown = true; return false;
@@ -86,83 +84,23 @@ function resetOutput() {
   $('error').hidden = true; $('error').textContent = ''; $('goto-error').hidden = true;
   $('duration').textContent = '—'; errorLine = null;
 }
-function closeFile(id) {
-  if (!workspace.files.some((file) => file.id === id)) return;
-  activeFile().code = editor.value;
-  const index = workspace.files.findIndex((file) => file.id === id);
-  lastClosed = { file: workspace.files[index], index };
-  const wasActive = id === workspace.activeId;
-  workspace.files.splice(index, 1); positions.delete(id);
-  if (!workspace.files.length) createFile(workspace, 'main.kivil', '');
-  if (wasActive) {
-    workspace.activeId = workspace.files[Math.min(index, workspace.files.length - 1)].id;
-    delete editor.dataset.loaded;
-    activateFile(workspace.activeId);
-  } else { renderFiles(); save(); }
-  toast('Sekme kapatıldı.');
-  const undo = document.createElement('button'); undo.textContent = 'Geri al';
-  undo.addEventListener('click', () => {
-    if (!lastClosed || workspace.files.length >= 30) return;
-    const restored = lastClosed.file;
-    restored.name = uniqueName(workspace.files, restored.name);
-    workspace.files.splice(lastClosed.index, 0, restored); lastClosed = null;
-    activateFile(restored.id); $('toast').hidden = true;
-  });
-  $('toast').append(undo);
-}
-function renderFiles() {
-  $('file-tabs').replaceChildren();
-  for (const file of workspace.files) {
-    const item = document.createElement('div'); item.className = 'tab-item'; item.setAttribute('role', 'presentation');
-    const tab = document.createElement('button'); tab.className = 'file-tab'; tab.id = 'tab-' + file.id;
-    tab.setAttribute('role', 'tab'); tab.setAttribute('aria-selected', String(file.id === workspace.activeId)); tab.setAttribute('aria-controls', 'editor-panel');
-    tab.tabIndex = file.id === workspace.activeId ? 0 : -1;
-    const fileIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    fileIcon.setAttribute('viewBox', '0 0 16 18'); fileIcon.setAttribute('aria-hidden', 'true'); fileIcon.classList.add('tab-file-icon');
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', 'M9.5 1.5h-6a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-10Zm0 0v4h4M5.5 9h5m-5 3h3');
-    fileIcon.append(path);
-    const fileLabel = document.createElement('span'); fileLabel.className = 'tab-label'; fileLabel.textContent = file.name;
-    tab.append(fileIcon, fileLabel); tab.title = file.name;
-    tab.addEventListener('click', () => activateFile(file.id));
-    tab.addEventListener('keydown', (event) => {
-      if (event.key === 'Delete') { event.preventDefault(); closeFile(file.id); return; }
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-      event.preventDefault();
-      let index = workspace.files.findIndex((item) => item.id === file.id);
-      index = event.key === 'Home' ? 0 : event.key === 'End' ? workspace.files.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + workspace.files.length) % workspace.files.length;
-      activateFile(workspace.files[index].id); $('tab-' + workspace.activeId).focus();
-    });
-    const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.setAttribute('aria-label', `${file.name} sekmesini kapat`);
-    close.addEventListener('click', () => closeFile(file.id));
-    item.classList.toggle('active', file.id === workspace.activeId);
-    item.append(tab, close); $('file-tabs').append(item);
-  }
-  $('editor-panel').setAttribute('aria-labelledby', 'tab-' + workspace.activeId);
-}
-function activateFile(id, persist = true) {
-  if (!workspace.files.some((file) => file.id === id)) return;
-  if (editor.dataset.loaded) {
-    activeFile().code = editor.value;
-    positions.set(workspace.activeId, { start: editor.selectionStart, end: editor.selectionEnd, top: editor.scrollTop, left: editor.scrollLeft });
-  }
-  stop('Hazır'); resetOutput(); workspace.activeId = id;
-  const file = activeFile(); editor.value = file.code; editor.dataset.loaded = 'true';
-  document.title = `${file.name} — Kıvıl Web IDE`;
-  renderFiles(); highlight();
-  const position = positions.get(id);
-  editor.setSelectionRange(position?.start || 0, position?.end || 0);
-  editor.scrollTop = position?.top || 0; editor.scrollLeft = position?.left || 0; syncScroll(); cursor();
-  $('tab-' + id).scrollIntoView({ block: 'nearest', inline: 'nearest' });
-  if (persist) save();
+function openDocument(document) {
+  const url = documentUrl(location.href, document);
+  const tab = window.open(url, '_blank');
+  if (tab) { tab.opener = null; return; }
+  // Browsers may block additional popups when multiple files are selected at once.
+  const link = window.document.createElement('a');
+  link.href = url; link.target = '_blank'; link.rel = 'noopener'; link.textContent = document.name;
+  link.addEventListener('click', () => setTimeout(() => {
+    link.remove(); if (!$('pending-tabs').children.length) $('blocked-tabs').hidden = true;
+  }, 0));
+  $('pending-tabs').append(link); $('blocked-tabs').hidden = false;
 }
 function setExample(key) {
   if (!examples[key]) return;
   const example = examples[key];
-  try {
-    const file = createFile(workspace, uniqueName(workspace.files, example.file), example.code);
-    activateFile(file.id); $('examples-menu').open = false;
-  } catch (error) { toast(error.message); }
+  openDocument(createDocument(example.file, example.code));
+  $('examples-menu').open = false;
 }
 async function initializeRuntime() {
   ready = false;
@@ -279,10 +217,7 @@ document.addEventListener('keydown', (event) => {
 runButton.addEventListener('click', () => run()); stopButton.addEventListener('click', () => stop());
 document.querySelectorAll('[data-example]').forEach((button) => button.addEventListener('click', () => setExample(button.dataset.example)));
 document.addEventListener('click', (event) => { if (!$('examples-menu').contains(event.target)) $('examples-menu').open = false; });
-$('new-file').addEventListener('click', () => {
-  try { const file = createFile(workspace, uniqueName(workspace.files, 'program.kivil')); activateFile(file.id); editor.focus(); }
-  catch (error) { toast(error.message); }
-});
+$('new-file').addEventListener('click', () => openDocument(createDocument()));
 $('input-form').addEventListener('submit', (event) => { event.preventDefault(); if (!waiting) return; answers.push($('runtime-input').value); run(true); });
 $('open-file').addEventListener('click', () => $('file-input').click());
 $('file-input').addEventListener('change', async () => {
@@ -290,15 +225,14 @@ $('file-input').addEventListener('change', async () => {
     try {
       if (file.size > 65536) throw new Error(`${file.name}: dosya en fazla 64 KB olabilir.`);
       const code = await file.text();
-      const added = createFile(workspace, uniqueName(workspace.files, file.name), code);
-      activateFile(added.id);
+      openDocument(createDocument(file.name, code));
     } catch (error) { toast(error.message); }
   }
   $('file-input').value = '';
 });
 function downloadFile() {
   const url = URL.createObjectURL(new Blob([editor.value], { type: 'text/plain;charset=utf-8' }));
-  const link = document.createElement('a'); link.href = url; link.download = activeFile().name; link.click();
+  const link = document.createElement('a'); link.href = url; link.download = currentDocument.name; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 $('download').addEventListener('click', downloadFile);
@@ -324,4 +258,7 @@ resizer.addEventListener('keydown', (event) => {
   document.documentElement.style.setProperty('--output-width', value + '%'); resizer.setAttribute('aria-valuenow', String(value));
 });
 $('shortcut-key').textContent = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl';
-activateFile(workspace.activeId); initializeRuntime();
+editor.value = currentDocument.code;
+$('filename').textContent = currentDocument.name;
+document.title = `${currentDocument.name} — Kıvıl`;
+highlight(); save(); initializeRuntime();

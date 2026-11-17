@@ -3,33 +3,35 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#141619">
-  <meta name="description" content="Kıvıl Web IDE: Türkçe programlarını yaz, dosyalarını sakla ve tarayıcıda çalıştır.">
-  <title>Kıvıl Web IDE</title>
+  <meta name="theme-color" content="#f5f6f8">
+  <meta name="description" content="Kıvıl kodlarını yazıp çalıştırabileceğin online editör.">
+  <title>Kıvıl Online Editör</title>
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <header class="app-header">
-    <a class="brand" href="./" aria-label="Kıvıl Web IDE"><svg viewBox="0 0 32 38" aria-hidden="true"><path d="M18 1c2 10-7 11-5 20 3-2 5-5 5-8 8 6 12 12 9 18-3 7-14 8-20 2C-1 25 5 15 10 11c-1 6 0 8 2 9C9 12 17 10 18 1Z" fill="currentColor"/></svg><span>Kıvıl</span><span class="brand-label">WEB IDE</span></a>
+    <a class="brand" href="./" aria-label="Kıvıl">Kıvıl</a>
     <nav aria-label="Uygulama menüsü">
-      <details id="examples-menu"><summary><svg class="toolbar-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="m6.5 5-5 5 5 5m7-10 5 5-5 5M12 3 8 17"/></svg>Örnekler <svg class="chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></summary><div class="menu" role="group" aria-label="Hazır örnekler"><button data-example="hello">Merhaba dünya</button><button data-example="conditions">Koşullar</button><button data-example="lists">Listeler</button><button data-example="functions">Fonksiyonlar</button><button data-example="input">Girdi</button></div></details>
-      <button id="download" class="header-button"><svg class="toolbar-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2v10m-4-4 4 4 4-4M3 12v5h14v-5"/></svg>Kaydet</button>
-      <button id="open-file" class="header-button"><svg class="toolbar-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3m-4 4 4-4 4 4M3 12v5h14v-5"/></svg>Yükle</button>
+      <details id="examples-menu"><summary>Örnekler ▾</summary><div class="menu" role="group" aria-label="Hazır örnekler"><button data-example="hello">Merhaba dünya</button><button data-example="conditions">Koşullar</button><button data-example="lists">Listeler</button><button data-example="functions">Fonksiyonlar</button><button data-example="input">Girdi</button></div></details>
+      <button id="download" class="header-button">Kaydet</button>
+      <button id="open-file" class="header-button">Yükle</button>
       <input type="file" id="file-input" accept=".kivil,.txt" multiple hidden>
-      <a class="github-link" href="https://github.com/herdem-herdem/kivil-playground" target="_blank" rel="noreferrer"><svg class="toolbar-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 17c-4 1-4-2-5-2m10 4v-3.5c0-1 .1-1.5-.5-2 3-.3 5.5-1.4 5.5-5.5 0-1.2-.4-2.3-1.2-3.1.1-.3.5-1.5-.1-3.1 0 0-1-.3-3.2 1.2a11 11 0 0 0-6 0C4.3 1.5 3.3 1.8 3.3 1.8c-.6 1.6-.2 2.8-.1 3.1C2.4 5.7 2 6.8 2 8c0 4.1 2.5 5.2 5.5 5.5-.5.4-.6 1-.5 2V19"/></svg><span>GitHub</span><span class="external-arrow" aria-hidden="true">↗</span></a>
+      <button id="new-file" class="header-button" aria-label="Yeni tarayıcı sekmesi">Yeni</button>
+      <a class="github-link" href="https://github.com/herdem-herdem/kivil-playground" target="_blank" rel="noreferrer"><span>GitHub</span><span class="external-arrow" aria-hidden="true">↗</span></a>
     </nav>
-    <div class="run-actions"><span class="shortcut"><kbd id="shortcut-key">⌘</kbd><kbd>↵</kbd></span><button id="stop" class="stop-button" disabled><svg class="button-icon stop-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1"/></svg><span class="stop-label">Durdur</span></button><button id="run" class="run-button" disabled><svg class="button-icon play-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="m5 3 8 5-8 5Z"/></svg>Çalıştır</button></div>
+    <div class="run-actions"><span class="shortcut"><kbd id="shortcut-key">⌘</kbd><kbd>↵</kbd></span><button id="stop" class="stop-button" disabled><span class="stop-symbol" aria-hidden="true">■</span><span class="stop-label">Durdur</span></button><button id="run" class="run-button" disabled>Çalıştır</button></div>
   </header>
   <main class="ide-layout">
-    <section class="workbench" aria-label="Kod çalışma alanı"><div class="tabs-bar"><div id="file-tabs" class="file-tabs" role="tablist" aria-label="Açık dosyalar"></div><button id="new-file" class="new-tab" aria-label="Yeni sekme" title="Yeni sekme">+</button></div><div class="panes" id="panes">
-      <section class="code-pane" id="editor-panel" role="tabpanel" aria-label="Kod editörü">
+    <section class="workbench" aria-label="Kod çalışma alanı"><div class="panes" id="panes">
+      <section class="code-pane" id="editor-panel" aria-label="Kod editörü"><div class="code-header"><span id="filename">main.kivil</span></div>
       <div class="editor-shell" id="editor-shell"><div class="line-number-clip" aria-hidden="true"><div id="line-numbers">1</div></div><div class="code-area"><pre id="highlight" aria-hidden="true"><code></code></pre><textarea id="editor" maxlength="65536" aria-label="Kıvıl kod editörü" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea></div></div>
       <div class="editor-footer"><span id="cursor-position">Satır 1, Sütun 1</span><span>UTF-8</span></div></section>
       <div id="resize-handle" class="resize-handle" role="separator" aria-label="Çıktı panelinin genişliği" aria-orientation="vertical" aria-valuemin="25" aria-valuemax="60" aria-valuenow="36" tabindex="0"></div>
-      <section class="output-pane" aria-label="Program çıktısı"><div class="pane-header output-header"><span class="terminal-title"><svg class="toolbar-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="m3 5 5 5-5 5m8 0h6"/></svg>Çıktı</span><div><button id="clear-output" title="Çıktıyı temizle"><svg class="toolbar-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M8 2h4l1 3M5 5l1 12h8l1-12M8 8v6m4-6v6"/></svg>Temizle</button><button id="copy-output" aria-label="Çıktıyı kopyala"><svg class="toolbar-icon" viewBox="0 0 20 20" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M12 4V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h1"/></svg>Kopyala</button></div></div><div class="output-body" id="output-body"><div class="empty-output" id="empty-output" aria-hidden="true"><span>›_</span></div><pre id="output" aria-live="polite" aria-atomic="true" tabindex="0" hidden></pre><div id="error" role="alert" hidden></div><button id="goto-error" hidden>Hatalı satıra git ↗</button></div><form id="input-form" hidden><label for="runtime-input">PROGRAM GİRDİ BEKLİYOR</label><div><input id="runtime-input" autocomplete="off" placeholder="Yanıtını yaz…" maxlength="8000"><button type="submit" aria-label="Girdiyi gönder">Gönder ↵</button></div></form><div class="output-footer"><span id="status" data-state="idle"><span></span> Hazırlanıyor</span><span id="duration">—</span></div></section>
+      <section class="output-pane" aria-label="Program çıktısı"><div class="pane-header output-header"><span class="terminal-title">Çıktı</span><div><button id="clear-output" title="Çıktıyı temizle">Temizle</button><button id="copy-output" aria-label="Çıktıyı kopyala">Kopyala</button></div></div><div class="output-body" id="output-body"><div class="empty-output" id="empty-output" aria-hidden="true"><span>›_</span></div><pre id="output" aria-live="polite" aria-atomic="true" tabindex="0" hidden></pre><div id="error" role="alert" hidden></div><button id="goto-error" hidden>Hatalı satıra git ↗</button></div><form id="input-form" hidden><label for="runtime-input">PROGRAM GİRDİ BEKLİYOR</label><div><input id="runtime-input" autocomplete="off" placeholder="Yanıtını yaz…" maxlength="8000"><button type="submit" aria-label="Girdiyi gönder">Gönder ↵</button></div></form><div class="output-footer"><span id="status" data-state="idle"><span></span> Hazırlanıyor</span><span id="duration">—</span></div></section>
     </div></section>
   </main>
+  <div id="blocked-tabs" hidden><span>Tarayıcı yeni sekmeyi engelledi. Açmak için dosyaya tıkla:</span><div id="pending-tabs"></div></div>
   <div id="toast" role="status" hidden></div>
   <script type="module" src="./app.js"></script>
 </body>
