@@ -47,9 +47,13 @@ test('saves drafts and supports the run shortcut', async ({ page }) => {
   await expect(page.locator('#output')).toHaveText('Taslak\n');
 });
 test('mobile layout stays within the viewport', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.locator('#run')).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    for (const selector of ['#run', '#download', '#open-file']) {
+      await expect(page.locator(selector)).toBeInViewport({ ratio: 1 });
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  }
   await page.locator('#run').click();
   await expect(page.locator('#output')).toContainText('Merhaba dünya!');
 });

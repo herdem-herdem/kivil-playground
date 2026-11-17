@@ -53,12 +53,21 @@ function syncScroll() {
   $('highlight').scrollTop = editor.scrollTop;
   $('highlight').scrollLeft = editor.scrollLeft;
   $('line-numbers').style.transform = `translateY(${-editor.scrollTop}px)`;
+  updateActiveLine();
 }
 function cursor() {
   const prefix = editor.value.slice(0, editor.selectionStart);
   const lines = prefix.split('\n');
   $('cursor-position').textContent = `Satır ${lines.length}, Sütun ${Array.from(lines.at(-1)).length + 1}`;
+  updateActiveLine();
 }
+function updateActiveLine() {
+  const style = getComputedStyle(editor);
+  const lineHeight = parseFloat(style.lineHeight);
+  const line = editor.value.slice(0, editor.selectionStart).split('\n').length - 1;
+  $('editor-shell').style.setProperty('--active-line-top', `${parseFloat(style.paddingTop) + line * lineHeight - editor.scrollTop}px`);
+}
+window.addEventListener('resize', updateActiveLine);
 function save() {
   activeFile().code = editor.value;
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(workspace)); storageFailureShown = false; return true; }
@@ -108,7 +117,13 @@ function renderFiles() {
     const tab = document.createElement('button'); tab.className = 'file-tab'; tab.id = 'tab-' + file.id;
     tab.setAttribute('role', 'tab'); tab.setAttribute('aria-selected', String(file.id === workspace.activeId)); tab.setAttribute('aria-controls', 'editor-panel');
     tab.tabIndex = file.id === workspace.activeId ? 0 : -1;
-    tab.textContent = file.name; tab.title = file.name;
+    const fileIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    fileIcon.setAttribute('viewBox', '0 0 16 18'); fileIcon.setAttribute('aria-hidden', 'true'); fileIcon.classList.add('tab-file-icon');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M9.5 1.5h-6a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-10Zm0 0v4h4M5.5 9h5m-5 3h3');
+    fileIcon.append(path);
+    const fileLabel = document.createElement('span'); fileLabel.className = 'tab-label'; fileLabel.textContent = file.name;
+    tab.append(fileIcon, fileLabel); tab.title = file.name;
     tab.addEventListener('click', () => activateFile(file.id));
     tab.addEventListener('keydown', (event) => {
       if (event.key === 'Delete') { event.preventDefault(); closeFile(file.id); return; }
@@ -290,7 +305,7 @@ $('download').addEventListener('click', downloadFile);
 $('clear-output').addEventListener('click', () => { stop('Hazır'); resetOutput(); });
 $('goto-error').addEventListener('click', () => {
   const lines = editor.value.split('\n'); const start = lines.slice(0, errorLine - 1).reduce((sum, line) => sum + line.length + 1, 0);
-  editor.focus(); editor.setSelectionRange(start, start + (lines[errorLine - 1]?.length || 0)); editor.scrollTop = Math.max(0, (errorLine - 3) * 23); syncScroll(); cursor();
+  editor.focus(); editor.setSelectionRange(start, start + (lines[errorLine - 1]?.length || 0)); editor.scrollTop = Math.max(0, (errorLine - 3) * parseFloat(getComputedStyle(editor).lineHeight)); syncScroll(); cursor();
 });
 $('copy-output').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('output').textContent); toast('Çıktı kopyalandı.'); } catch { toast('Kopyalanamadı. Çıktıyı seçerek kopyalayabilirsin.'); } });
 const resizer = $('resize-handle');
