@@ -38,17 +38,13 @@ test('automatically terminates infinite loops', async ({ page }) => {
   await expect(page.locator('#error')).toContainText('5 saniyeyi aştığı', { timeout: 10000 });
   await expect(page.locator('#run')).toBeEnabled();
 });
-test('saves drafts, supports keyboard shortcut and opens the guide', async ({ page }) => {
+test('saves drafts and supports the run shortcut', async ({ page }) => {
   await page.locator('#editor').fill('yaz("Taslak")');
   await page.reload();
   await expect(page.locator('#editor')).toHaveValue('yaz("Taslak")');
   await expect(page.locator('#run')).toBeEnabled();
   await page.keyboard.press('Control+Enter');
   await expect(page.locator('#output')).toHaveText('Taslak\n');
-  await page.getByRole('button', { name: 'Dil rehberi' }).click();
-  await expect(page.locator('#guide')).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(page.locator('#guide')).not.toBeVisible();
 });
 test('mobile layout stays within the viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -58,61 +54,61 @@ test('mobile layout stays within the viewport', async ({ page }) => {
   await expect(page.locator('#output')).toContainText('Merhaba dünya!');
 });
 
-test('creates, switches, renames and persists independent files', async ({ page }) => {
+test('opens independent tabs without naming dialogs and restores them', async ({ page }) => {
   await page.locator('#editor').fill('yaz("birinci")');
   await page.locator('#new-file').click();
-  await page.locator('#file-name').fill('ikinci');
-  await page.locator('#file-confirm').click();
-  await expect(page.locator('#filename')).toHaveText('ikinci.kivil');
+  await expect(page.locator('#file-tabs [aria-selected="true"]')).toHaveText('program.kivil');
   await page.locator('#editor').fill('yaz("ikinci")');
-  await page.locator('#file-list').getByRole('button', { name: 'main.kivil', exact: true }).click();
+  await page.getByRole('tab', { name: 'main.kivil', exact: true }).click();
   await expect(page.locator('#editor')).toHaveValue('yaz("birinci")');
-  await page.locator('#file-tabs').getByRole('tab', { name: 'ikinci.kivil' }).click();
-  await expect(page.locator('#editor')).toHaveValue('yaz("ikinci")');
-  await page.locator('#rename-file').click();
-  await page.locator('#file-name').fill('hesap.kivil');
-  await page.locator('#file-confirm').click();
+  await page.getByRole('tab', { name: 'program.kivil', exact: true }).click();
   await page.reload();
-  await expect(page.locator('#filename')).toHaveText('hesap.kivil');
+  await expect(page.locator('#file-tabs [aria-selected="true"]')).toHaveText('program.kivil');
   await expect(page.locator('#editor')).toHaveValue('yaz("ikinci")');
-  await expect(page.locator('#file-count')).toHaveText('2 dosya');
   await page.locator('#run').click();
   await expect(page.locator('#output')).toHaveText('ikinci\n');
 });
 
-test('examples preserve user files and duplicate names are rejected', async ({ page }) => {
+test('every example opens a new tab and preserves user code', async ({ page }) => {
   await page.locator('#editor').fill('yaz("Benim kodum")');
-  await page.locator('#examples-menu summary').click();
-  await page.getByRole('button', { name: 'Merhaba dünya', exact: true }).click();
-  await expect(page.locator('#filename')).toHaveText('merhaba.kivil');
-  await page.locator('#file-list').getByRole('button', { name: 'main.kivil', exact: true }).click();
+  for (let i = 0; i < 2; i++) {
+    await page.locator('#examples-menu summary').click();
+    await page.getByRole('button', { name: 'Merhaba dünya', exact: true }).click();
+  }
+  await expect(page.getByRole('tab')).toHaveCount(3);
+  await page.getByRole('tab', { name: 'main.kivil', exact: true }).click();
   await expect(page.locator('#editor')).toHaveValue('yaz("Benim kodum")');
-  await page.locator('#new-file').click();
-  await page.locator('#file-name').fill('main.kivil');
-  await page.locator('#file-confirm').click();
-  await expect(page.locator('#file-name-error')).toContainText('zaten var');
-  await expect(page.locator('#file-dialog')).toBeVisible();
-  await page.locator('#file-cancel').click();
 });
 
-test('deleting the final file leaves a usable empty editor', async ({ page }) => {
-  await page.locator('#delete-file').click();
-  await page.locator('#file-confirm').click();
+test('closing a tab can be undone, including the last tab', async ({ page }) => {
+  await page.locator('#editor').fill('yaz("Korunacak")');
+  await page.getByRole('button', { name: 'main.kivil sekmesini kapat' }).click();
   await expect(page.locator('#editor')).toHaveValue('');
-  await expect(page.locator('#file-count')).toHaveText('1 dosya');
-  await page.reload();
-  await expect(page.locator('#editor')).toHaveValue('');
+  await page.getByRole('button', { name: 'Geri al', exact: true }).click();
+  await expect(page.locator('#editor')).toHaveValue('yaz("Korunacak")');
 });
 
 test('imports and downloads files without overwriting existing contents', async ({ page }) => {
   await page.locator('#file-input').setInputFiles({ name: 'main.kivil', mimeType: 'text/plain', buffer: Buffer.from('yaz("Dosyadan")') });
-  await expect(page.locator('#filename')).toHaveText('main-2.kivil');
+  await expect(page.locator('#file-tabs [aria-selected="true"]')).toHaveText('main-2.kivil');
   const downloadPromise = page.waitForEvent('download');
   await page.locator('#download').click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe('main-2.kivil');
+  const shortcutDownload = page.waitForEvent('download');
+  await page.keyboard.press('Control+s');
+  expect((await shortcutDownload).suggestedFilename()).toBe('main-2.kivil');
   await page.locator('#run').click();
   await expect(page.locator('#output')).toHaveText('Dosyadan\n');
+  await page.locator('#file-input').setInputFiles([
+    { name: 'bir.kivil', mimeType: 'text/plain', buffer: Buffer.from('yaz(1)') },
+    { name: 'iki.kivil', mimeType: 'text/plain', buffer: Buffer.from('yaz(2)') },
+  ]);
+  await expect(page.getByRole('tab')).toHaveCount(4);
+  await page.getByRole('tab', { name: 'bir.kivil', exact: true }).click();
+  await expect(page.locator('#editor')).toHaveValue('yaz(1)');
+  await page.getByRole('tab', { name: 'iki.kivil', exact: true }).click();
+  await expect(page.locator('#editor')).toHaveValue('yaz(2)');
 });
 
 test('migrates a draft from the previous interface', async ({ page }) => {
@@ -121,15 +117,14 @@ test('migrates a draft from the previous interface', async ({ page }) => {
     localStorage.setItem('kivil-playground-draft-v1', JSON.stringify({ filename: 'taslak.kivil', code: 'yaz("Korundu")' }));
   });
   await page.reload();
-  await expect(page.locator('#filename')).toHaveText('taslak.kivil');
+  await expect(page.locator('#file-tabs [aria-selected="true"]')).toHaveText('taslak.kivil');
   await expect(page.locator('#editor')).toHaveValue('yaz("Korundu")');
 });
 
-test('mobile file drawer and automatic indentation work', async ({ page }) => {
+test('mobile tabs and automatic indentation work', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.locator('#toggle-files').click();
-  await expect(page.locator('#new-file')).toBeVisible();
-  await page.locator('#sidebar-scrim').click({ position: { x: 300, y: 80 } });
+  await page.locator('#new-file').click();
+  await expect(page.getByRole('tab')).toHaveCount(2);
   await page.locator('#editor').fill('eger (dogru) {}');
   await page.locator('#editor').focus();
   await page.locator('#editor').evaluate((editor) => editor.setSelectionRange(editor.value.length - 1, editor.value.length - 1));
@@ -154,9 +149,17 @@ test('navigates to errors and resizes the output pane with the keyboard', async 
 test('reports storage failures without claiming the workspace was saved', async ({ page }) => {
   await page.evaluate(() => { Storage.prototype.setItem = () => { throw new Error('Storage unavailable'); }; });
   await page.locator('#editor').fill('yaz("Bellekte")');
-  await expect(page.locator('#save-status')).toContainText('Kaydedilemedi');
-  await page.keyboard.press('Control+s');
   await expect(page.locator('#toast')).toContainText('kaydı kullanılamıyor');
   await page.locator('#run').click();
   await expect(page.locator('#output')).toHaveText('Bellekte\n');
+});
+
+test('keeps only tabs and the requested top-menu actions', async ({ page }) => {
+  await expect(page.locator('.sidebar, #guide, #guide-open, #rename-file, #file-dialog, .breadcrumb, .app-statusbar, #file-count')).toHaveCount(0);
+  const menu = await page.locator('.app-header nav').innerText();
+  expect(menu.indexOf('Örnekler')).toBeLessThan(menu.indexOf('Kaydet'));
+  expect(menu.indexOf('Kaydet')).toBeLessThan(menu.indexOf('Yükle'));
+  for (const text of ['Dosyaların yalnızca bu tarayıcıda saklanır.', 'Tarayıcıda çalışır · 5 sn sınır', 'Her dosya ayrı çalıştırılır.', 'Çalışma alanım']) {
+    await expect(page.getByText(text, { exact: true })).toHaveCount(0);
+  }
 });

@@ -24,17 +24,17 @@ npm run dev
 
 ## Özellikler
 
-- Dosya gezgini, dosya sekmeleri ve geniş, sözdizimi renklendirmeli kod editörü.
-- Dosya oluşturma, yeniden adlandırma, silme, çoklu dosya açma ve aktif dosyayı indirme.
+- Her dosya için ayrı sekme ve geniş, sözdizimi renklendirmeli kod editörü.
+- Adsız yeni sekme, sekme kapatma/geri alma, Kaydet ve Yükle ile dosya aktarımı.
 - Otomatik girinti, Tab/Shift+Tab, yeniden boyutlandırılabilen çıktı paneli ve hatalı satıra gitme.
 - Rust yorumlayıcısının gerçek WASM sürümü; JavaScript ile yeniden yazılmış bir dil motoru değildir.
-- Menüden yeni dosyada açılan merhaba dünya, koşullar, listeler, fonksiyonlar ve girdi örnekleri.
+- Her seçimde yeni sekmede açılan merhaba dünya, koşullar, listeler, fonksiyonlar ve girdi örnekleri.
 - En fazla 30 dosyalık yerel çalışma alanı; önceki arayüzdeki taslakların otomatik aktarımı.
 - Satır/sütun bilgili hatalar, çıktı kopyalama, dosya açma/indirme.
 - Ctrl/⌘ + Enter kısayolu ve tarayıcıda otomatik taslak saklama.
 - Ayrı Web Worker'da çalıştırma, durdurma düğmesi ve 5 saniyelik süre sınırı.
 - 64 KB kaynak kodu, 32 KB girdi, 128 KB çıktı ve 64 MB WASM belleği sınırları.
-- Mobil ekranlara uyumlu düzen ve klavyeyle kullanılabilen dil rehberi.
+- Mobil ekranlara uyumlu, yan panelsiz düzen.
 
 Kod ve girdiler tarayıcıda işlenir; çalıştırma için sunucuya gönderilmez.
 Sayfa ve WASM dosyası normal statik web istekleriyle indirilir. Çalışma alanındaki dosyalar

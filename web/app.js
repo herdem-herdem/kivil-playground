@@ -1,5 +1,5 @@
 import { examples } from './examples.js';
-import { STORAGE_KEY, createFile, normalizeName, restoreWorkspace, uniqueName } from './workspace.js';
+import { STORAGE_KEY, createFile, restoreWorkspace, uniqueName } from './workspace.js';
 const $ = (id) => document.getElementById(id);
 const editor = $('editor');
 const runButton = $('run');
@@ -13,7 +13,7 @@ let answers = [];
 let waiting = false;
 let toastTimer;
 let errorLine = null;
-let dialogMode = 'new';
+let lastClosed = null;
 let storageFailureShown = false;
 const positions = new Map();
 function readStorage(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
@@ -21,7 +21,7 @@ const workspace = restoreWorkspace(readStorage(STORAGE_KEY), readStorage('kivil-
 function activeFile() { return workspace.files.find((file) => file.id === workspace.activeId); }
 function toast(message) {
   $('toast').textContent = message; $('toast').hidden = false;
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 3000);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 5000);
 }
 function status(label, state = 'idle') {
   $('status').replaceChildren(document.createElement('span'), document.createTextNode(label));
@@ -61,9 +61,8 @@ function cursor() {
 }
 function save() {
   activeFile().code = editor.value;
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(workspace)); $('save-status').textContent = 'Kaydedildi'; storageFailureShown = false; return true; }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(workspace)); storageFailureShown = false; return true; }
   catch {
-    $('save-status').textContent = 'Kaydedilemedi — dosyanı indir';
     if (!storageFailureShown) toast('Tarayıcı kaydı kullanılamıyor. Dosyalarını indirerek saklayabilirsin.');
     storageFailureShown = true; return false;
   }
@@ -78,38 +77,53 @@ function resetOutput() {
   $('error').hidden = true; $('error').textContent = ''; $('goto-error').hidden = true;
   $('duration').textContent = '—'; errorLine = null;
 }
+function closeFile(id) {
+  if (!workspace.files.some((file) => file.id === id)) return;
+  activeFile().code = editor.value;
+  const index = workspace.files.findIndex((file) => file.id === id);
+  lastClosed = { file: workspace.files[index], index };
+  const wasActive = id === workspace.activeId;
+  workspace.files.splice(index, 1); positions.delete(id);
+  if (!workspace.files.length) createFile(workspace, 'main.kivil', '');
+  if (wasActive) {
+    workspace.activeId = workspace.files[Math.min(index, workspace.files.length - 1)].id;
+    delete editor.dataset.loaded;
+    activateFile(workspace.activeId);
+  } else { renderFiles(); save(); }
+  toast('Sekme kapatıldı.');
+  const undo = document.createElement('button'); undo.textContent = 'Geri al';
+  undo.addEventListener('click', () => {
+    if (!lastClosed || workspace.files.length >= 30) return;
+    const restored = lastClosed.file;
+    restored.name = uniqueName(workspace.files, restored.name);
+    workspace.files.splice(lastClosed.index, 0, restored); lastClosed = null;
+    activateFile(restored.id); $('toast').hidden = true;
+  });
+  $('toast').append(undo);
+}
 function renderFiles() {
-  $('file-list').replaceChildren(); $('file-tabs').replaceChildren();
+  $('file-tabs').replaceChildren();
   for (const file of workspace.files) {
-    const fileButton = document.createElement('button');
-    fileButton.className = 'file-item' + (file.id === workspace.activeId ? ' active' : '');
-    fileButton.dataset.fileId = file.id; fileButton.title = file.name;
-    fileButton.setAttribute('aria-current', file.id === workspace.activeId ? 'true' : 'false');
-    const symbol = document.createElement('span'); symbol.className = 'file-symbol'; symbol.textContent = 'K'; symbol.setAttribute('aria-hidden', 'true');
-    const label = document.createElement('span'); label.textContent = file.name;
-    fileButton.append(symbol, label); fileButton.addEventListener('click', () => activateFile(file.id));
-    $('file-list').append(fileButton);
+    const item = document.createElement('div'); item.className = 'tab-item'; item.setAttribute('role', 'presentation');
     const tab = document.createElement('button'); tab.className = 'file-tab'; tab.id = 'tab-' + file.id;
     tab.setAttribute('role', 'tab'); tab.setAttribute('aria-selected', String(file.id === workspace.activeId)); tab.setAttribute('aria-controls', 'editor-panel');
     tab.tabIndex = file.id === workspace.activeId ? 0 : -1;
-    tab.append(symbol.cloneNode(true), label.cloneNode(true)); tab.addEventListener('click', () => activateFile(file.id));
+    tab.textContent = file.name; tab.title = file.name;
+    tab.addEventListener('click', () => activateFile(file.id));
     tab.addEventListener('keydown', (event) => {
+      if (event.key === 'Delete') { event.preventDefault(); closeFile(file.id); return; }
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
       event.preventDefault();
       let index = workspace.files.findIndex((item) => item.id === file.id);
       index = event.key === 'Home' ? 0 : event.key === 'End' ? workspace.files.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + workspace.files.length) % workspace.files.length;
       activateFile(workspace.files[index].id); $('tab-' + workspace.activeId).focus();
     });
-    $('file-tabs').append(tab);
+    const close = document.createElement('button'); close.className = 'tab-close'; close.textContent = '×'; close.setAttribute('aria-label', `${file.name} sekmesini kapat`);
+    close.addEventListener('click', () => closeFile(file.id));
+    item.classList.toggle('active', file.id === workspace.activeId);
+    item.append(tab, close); $('file-tabs').append(item);
   }
   $('editor-panel').setAttribute('aria-labelledby', 'tab-' + workspace.activeId);
-  $('file-count').textContent = `${workspace.files.length} dosya`;
-}
-function setSidebar(open) {
-  if (matchMedia('(max-width: 600px)').matches) {
-    document.body.dataset.sidebar = open ? 'open' : 'closed';
-  } else { document.body.classList.toggle('sidebar-hidden', !open); }
-  $('toggle-files').setAttribute('aria-expanded', String(open));
 }
 function activateFile(id, persist = true) {
   if (!workspace.files.some((file) => file.id === id)) return;
@@ -119,32 +133,21 @@ function activateFile(id, persist = true) {
   }
   stop('Hazır'); resetOutput(); workspace.activeId = id;
   const file = activeFile(); editor.value = file.code; editor.dataset.loaded = 'true';
-  $('filename').textContent = file.name; document.title = `${file.name} — Kıvıl Web IDE`;
+  document.title = `${file.name} — Kıvıl Web IDE`;
   renderFiles(); highlight();
   const position = positions.get(id);
   editor.setSelectionRange(position?.start || 0, position?.end || 0);
   editor.scrollTop = position?.top || 0; editor.scrollLeft = position?.left || 0; syncScroll(); cursor();
   $('tab-' + id).scrollIntoView({ block: 'nearest', inline: 'nearest' });
-  if (matchMedia('(max-width: 600px)').matches) setSidebar(false);
   if (persist) save();
 }
 function setExample(key) {
   if (!examples[key]) return;
   const example = examples[key];
   try {
-    const existing = workspace.files.find((file) => file.code === example.code && file.name === example.file);
-    const file = existing || createFile(workspace, uniqueName(workspace.files, example.file), example.code);
+    const file = createFile(workspace, uniqueName(workspace.files, example.file), example.code);
     activateFile(file.id); $('examples-menu').open = false;
   } catch (error) { toast(error.message); }
-}
-function openFileDialog(mode) {
-  dialogMode = mode; $('file-name-error').textContent = '';
-  $('file-dialog-title').textContent = { new: 'Yeni dosya', rename: 'Dosyayı yeniden adlandır', delete: 'Dosyayı sil' }[mode];
-  $('file-confirm').textContent = { new: 'Oluştur', rename: 'Kaydet', delete: 'Sil' }[mode];
-  $('file-name').value = mode === 'new' ? uniqueName(workspace.files, 'program.kivil') : activeFile().name;
-  $('file-name').disabled = mode === 'delete'; $('delete-note').hidden = mode !== 'delete';
-  $('file-dialog').showModal();
-  if (mode !== 'delete') { $('file-name').focus(); $('file-name').select(); }
 }
 async function initializeRuntime() {
   ready = false;
@@ -255,41 +258,16 @@ editor.addEventListener('keydown', (event) => {
   }
 });
 document.addEventListener('keydown', (event) => {
-  if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); if (!$('file-dialog').open && !$('guide').open) run(); }
-  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') { event.preventDefault(); if (save()) toast('Çalışma alanı bu tarayıcıya kaydedildi.'); }
+  if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); run(); }
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') { event.preventDefault(); downloadFile(); }
 });
 runButton.addEventListener('click', () => run()); stopButton.addEventListener('click', () => stop());
 document.querySelectorAll('[data-example]').forEach((button) => button.addEventListener('click', () => setExample(button.dataset.example)));
 document.addEventListener('click', (event) => { if (!$('examples-menu').contains(event.target)) $('examples-menu').open = false; });
-$('new-file').addEventListener('click', () => openFileDialog('new'));
-$('rename-file').addEventListener('click', () => openFileDialog('rename'));
-$('delete-file').addEventListener('click', () => openFileDialog('delete'));
-$('file-cancel').addEventListener('click', () => $('file-dialog').close());
-$('file-dialog-close').addEventListener('click', () => $('file-dialog').close());
-$('file-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  try {
-    if (dialogMode === 'delete') {
-      stop('Hazır'); const id = workspace.activeId;
-      workspace.files = workspace.files.filter((file) => file.id !== id); positions.delete(id);
-      if (!workspace.files.length) createFile(workspace, 'main.kivil', '');
-      workspace.activeId = workspace.files[0].id; delete editor.dataset.loaded;
-      activateFile(workspace.activeId);
-    } else {
-      const name = normalizeName($('file-name').value);
-      if (dialogMode === 'new') { const file = createFile(workspace, name); activateFile(file.id); }
-      else {
-        if (workspace.files.some((file) => file.id !== workspace.activeId && file.name === name)) throw new Error('Bu adla bir dosya zaten var.');
-        activeFile().name = name; activateFile(workspace.activeId);
-      }
-    }
-    $('file-dialog').close(); editor.focus();
-  } catch (error) { $('file-name-error').textContent = error.message; }
+$('new-file').addEventListener('click', () => {
+  try { const file = createFile(workspace, uniqueName(workspace.files, 'program.kivil')); activateFile(file.id); editor.focus(); }
+  catch (error) { toast(error.message); }
 });
-$('toggle-files').addEventListener('click', () => setSidebar($('toggle-files').getAttribute('aria-expanded') !== 'true'));
-$('sidebar-scrim').addEventListener('click', () => setSidebar(false));
-setSidebar(!matchMedia('(max-width: 600px)').matches);
-matchMedia('(max-width: 600px)').addEventListener('change', (event) => setSidebar(!event.matches));
 $('input-form').addEventListener('submit', (event) => { event.preventDefault(); if (!waiting) return; answers.push($('runtime-input').value); run(true); });
 $('open-file').addEventListener('click', () => $('file-input').click());
 $('file-input').addEventListener('change', async () => {
@@ -303,19 +281,18 @@ $('file-input').addEventListener('change', async () => {
   }
   $('file-input').value = '';
 });
-$('download').addEventListener('click', () => {
+function downloadFile() {
   const url = URL.createObjectURL(new Blob([editor.value], { type: 'text/plain;charset=utf-8' }));
   const link = document.createElement('a'); link.href = url; link.download = activeFile().name; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-});
+}
+$('download').addEventListener('click', downloadFile);
 $('clear-output').addEventListener('click', () => { stop('Hazır'); resetOutput(); });
 $('goto-error').addEventListener('click', () => {
   const lines = editor.value.split('\n'); const start = lines.slice(0, errorLine - 1).reduce((sum, line) => sum + line.length + 1, 0);
   editor.focus(); editor.setSelectionRange(start, start + (lines[errorLine - 1]?.length || 0)); editor.scrollTop = Math.max(0, (errorLine - 3) * 23); syncScroll(); cursor();
 });
 $('copy-output').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('output').textContent); toast('Çıktı kopyalandı.'); } catch { toast('Kopyalanamadı. Çıktıyı seçerek kopyalayabilirsin.'); } });
-$('guide-open').addEventListener('click', () => $('guide').showModal()); $('guide-close').addEventListener('click', () => $('guide').close());
-$('guide').addEventListener('click', (event) => { if (event.target === $('guide')) { const rect = $('guide').getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) $('guide').close(); } });
 const resizer = $('resize-handle');
 function resizeOutput(clientX) {
   const rect = $('panes').getBoundingClientRect();
