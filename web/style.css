@@ -162,3 +162,6 @@ summary::-webkit-details-marker { display: none; }
 .output-header { background: var(--charcoal); color: var(--white); border-color: var(--charcoal); }
 .output-header button { color: #f3edcf; }
 .output-header button:hover { color: var(--yellow); }
+
+.docs-link { text-decoration: none; }
+@media (max-width: 600px) { .app-header nav .docs-link { display: none; } }

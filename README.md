@@ -91,3 +91,14 @@ Kurulu Chrome'u kullanmak için `CHROME_EXECUTABLE` ortam değişkenine tarayıc
 İş akışı Playwright ile uyumlu Ubuntu 24.04 üzerinde Rust, WASM ve tarayıcı testlerini çalıştırır; yalnızca `dist/` çıktısını
 GitHub Pages'e yayınlar. Pull request'ler test edilir ama yayın yapmaz.
 GitHub ayarlarında Pages kaynağı **GitHub Actions** olmalıdır.
+
+## Dokümantasyon
+
+[Dokümantasyon sitesi](https://herdem-herdem.github.io/kivil-playground/docs/)
+öğrenme kitabı, dil referansı, yerleşik işlevler ve çalışma ortamı başvurularını içerir.
+İçerik `documentation/content.mjs`, statik sayfa üretimi `scripts/docs.mjs`,
+gezinti ve arama arayüzü `web/docs/` altında tutulur. `npm run build`, bütün
+sayfaları ve arama dizinini `dist/docs/` altına üretir. `npm test`, çalışabilir
+bütün belge örneklerinin çıktılarını sabitlenmiş gerçek WASM motoruyla karşılaştırır;
+yerel bağlantılar ve bölüm çapaları da denetlenir. Tarayıcı testleri aramayı,
+mobil gezinmeyi ve örnekten editöre geçişi doğrular.
