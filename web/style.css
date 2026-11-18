@@ -151,3 +151,7 @@ summary::-webkit-details-marker { display: none; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; scroll-behavior: auto !important; }
 }
+
+.run-button { width: 36px; padding: 0; display: grid; place-items: center; }
+.run-button svg { width: 17px; height: 17px; fill: currentColor; }
+@media (max-width: 480px) { .run-button { width: 32px; padding: 0; } }

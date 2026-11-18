@@ -98,6 +98,7 @@ test('blocked browser popups leave a working explicit link', async ({ page }) =>
 });
 
 test('can stop infinite loops and run again', async ({ page }) => {
+  await expect(page.locator('#stop')).toBeHidden();
   await page.locator('#editor').fill('iken dogru {}');
   await page.locator('#run').click();
   await expect(page.locator('#stop')).toBeEnabled();
@@ -105,6 +106,7 @@ test('can stop infinite loops and run again', async ({ page }) => {
   await page.locator('#editor').fill('yaz("Yeniden")');
   await page.locator('#run').click();
   await expect(page.locator('#output')).toHaveText('Yeniden\n');
+  await expect(page.locator('#stop')).toBeHidden();
 });
 
 test('automatically terminates infinite loops', async ({ page }) => {
@@ -127,7 +129,7 @@ test('run and save keyboard shortcuts work', async ({ page }) => {
 test('mobile header controls and indentation stay usable', async ({ page }) => {
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 844 });
-    for (const selector of ['#run', '#download', '#open-file', '#new-file', '#stop']) await expect(page.locator(selector)).toBeInViewport({ ratio: 1 });
+    for (const selector of ['#run', '#download', '#open-file', '#new-file']) await expect(page.locator(selector)).toBeInViewport({ ratio: 1 });
   }
   await page.locator('#editor').fill('eger (dogru) {}');
   await page.locator('#editor').focus();

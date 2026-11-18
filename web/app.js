@@ -22,6 +22,7 @@ function toast(message) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 5000);
 }
 function status(label, state = 'idle') {
+  stopButton.hidden = state !== 'running';
   const pane = document.querySelector('.output-pane');
   pane.dataset.state = state;
   pane.setAttribute('aria-label', `Program çıktısı: ${label}`);
