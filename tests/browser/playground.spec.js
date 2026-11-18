@@ -161,7 +161,9 @@ test('error navigation and panel resizing still work', async ({ page }) => {
 });
 
 test('keeps removed UI out of the page', async ({ page }) => {
-  await expect(page.locator('.sidebar, #guide, #rename-file, #file-dialog, .breadcrumb, .app-statusbar, #file-count, #file-tabs, .tabs-bar, .output-footer, #status, #duration')).toHaveCount(0);
+  await expect(page.locator('.sidebar, #guide, #rename-file, #file-dialog, .breadcrumb, .app-statusbar, #file-count, #file-tabs, .tabs-bar, .output-footer, #status, #duration, .shortcut, kbd')).toHaveCount(0);
+  await expect(page.locator('.github-link img')).toBeVisible();
+  await expect(page.locator('.github-link')).toHaveText('');
   const menu = await page.locator('.app-header nav').innerText();
   expect(menu.indexOf('Örnekler')).toBeLessThan(menu.indexOf('Kaydet'));
   expect(menu.indexOf('Kaydet')).toBeLessThan(menu.indexOf('Yükle'));

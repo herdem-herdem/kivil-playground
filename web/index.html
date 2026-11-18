@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f5f6f8">
+  <meta name="theme-color" content="#fdf6cd">
   <meta name="description" content="Kıvıl kodlarını yazıp çalıştırabileceğin online editör.">
   <title>Kıvıl Online Editör</title>
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
@@ -19,9 +19,9 @@
       <button id="open-file" class="header-button">Yükle</button>
       <input type="file" id="file-input" accept=".kivil,.txt" multiple hidden>
       <button id="new-file" class="header-button" aria-label="Yeni tarayıcı sekmesi">Yeni</button>
-      <a class="github-link" href="https://github.com/herdem-herdem/kivil-playground" target="_blank" rel="noreferrer"><span>GitHub</span><span class="external-arrow" aria-hidden="true">↗</span></a>
+      <a class="github-link" href="https://github.com/herdem-herdem/kivil-playground" target="_blank" rel="noreferrer" aria-label="GitHub deposu" title="GitHub"><img src="./assets/github.svg" alt="" width="21" height="21"></a>
     </nav>
-    <div class="run-actions"><span class="shortcut"><kbd id="shortcut-key">⌘</kbd><kbd>↵</kbd></span><button id="stop" class="stop-button" disabled hidden><span class="stop-symbol" aria-hidden="true">■</span><span class="stop-label">Durdur</span></button><button id="run" class="run-button" aria-label="Çalıştır" title="Çalıştır (Ctrl/⌘ + Enter)" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5 3 8 5-8 5Z"/></svg></button></div>
+    <div class="run-actions"><button id="stop" class="stop-button" disabled hidden><span class="stop-symbol" aria-hidden="true">■</span><span class="stop-label">Durdur</span></button><button id="run" class="run-button" aria-label="Çalıştır" title="Çalıştır (Ctrl/⌘ + Enter)" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5 3 8 5-8 5Z"/></svg></button></div>
   </header>
   <main class="ide-layout">
     <section class="workbench" aria-label="Kod çalışma alanı"><div class="panes" id="panes">

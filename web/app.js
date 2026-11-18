@@ -257,7 +257,6 @@ resizer.addEventListener('keydown', (event) => {
   const current = Number(resizer.getAttribute('aria-valuenow')); const value = Math.max(25, Math.min(60, current + (event.key === 'ArrowLeft' ? 2 : -2)));
   document.documentElement.style.setProperty('--output-width', value + '%'); resizer.setAttribute('aria-valuenow', String(value));
 });
-$('shortcut-key').textContent = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl';
 editor.value = currentDocument.code;
 $('filename').textContent = currentDocument.name;
 document.title = `${currentDocument.name} — Kıvıl`;
